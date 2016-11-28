@@ -35,6 +35,10 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 		int len;
 		if(x == -1){
 			baseVectorLen = (int) Math.pow(c, n);
+		}if(x == -2){
+			baseVectorLen = 10*n-13;
+		}if(x == -3){
+			baseVectorLen = 2*n+1;
 		}else{
 			baseVectorLen = (int)(Math.pow(2, n+x)-1);
 		}
@@ -92,24 +96,33 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 		}
 		return baseArrayList;
 	}
-	public static ArrayList<int[]> preference16(int n){
-		int[] base = new int[n];
-		/**
-		 * 以下初始化基向量
-		 */
-		for(int i=0; i<n;i++){
-			base[i] = 3*i;
-		}
-		
-		base[0] = 1;
+	public static ArrayList<int[]> getWeightVector16(int n){
+		int[] base = getBaseVector16(n);
 		int[] weights = {2, -1, 0, 1, 2};
 		return vector(n,weights,base,2,0);
 	} 
-	public static ArrayList<int[]> preference17(int x,int n){
+	public static int[] getBaseVector16(int n) {
 		int[] base = new int[n];
-		/**
-		 * 以下初始化基向量
-		 */
+		for(int i=0; i<n;i++){
+			base[i] = 3*i;
+		}
+		base[0] = 1;
+		return base;
+	}
+
+	public static ArrayList<int[]> getWeightVector17(int n,int x){
+		int[] base = getBaseVector17(n,x);
+		int[] weights = new int[2*x+1];
+		weights[x] = 0;
+		for (int i = 1; i < x+1; i++) {
+			weights[x+i] = i;
+			weights[x-i] = -1*i;
+		}
+		
+		return vector(n,weights,base,x,0);
+	} 
+	public static int[] getBaseVector17(int n,int x) {
+		int[] base = new int[n];
 		if(x>2){
 				for(int i=1; i<n;i++){
 				base[i] = 6*i;
@@ -121,23 +134,10 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 			}
 		}
 		base[0] = 1;
-		int[] weights = new int[2*x+1];
-		weights[x] = 0;
-		for (int i = 1; i < x+1; i++) {
-			weights[x+i] = i;
-			weights[x-i] = -1*i;
-		}
-		
-		return vector(n,weights,base,x,0);
-	} 
-	public static ArrayList<int[]> preference18(int n, int c){
-		int[] base = new int[n];
-		/**
-		 * 以下初始化基向量
-		 */
-		for (int i = 0; i < n; i++) {
-			base[i] = (int) Math.pow(c, i);
-		}
+		return base;
+	}
+	public static ArrayList<int[]> getWeightVector18(int n, int c){
+		int[] base = getBaseVector18(n,c);
 		int[] weights = new int[c];
 		if(c % 2 == 0){
 			weights[0] = (int) (1 - 0.5*c);
@@ -153,8 +153,41 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 		}
 		return vector(n,weights,base,-1,c);
 	} 
+	public static int[] getBaseVector18(int n,int c) {
+		int[] base = new int[n];
+		for (int i = 0; i < n; i++) {
+			base[i] = (int) Math.pow(c, i);
+		}
+		return base;
+	}
+	public static int[] getBaseVector14(int n) {
+		int[] base = new int[n];
+		base[0] = 1; 
+		base[1] = 2;
+		for (int i = 2; i < base.length; i++) {
+			base[i] = 5*n-9;
+		}
+		return base;
+	}
+	public static int[] getBaseVector8(int n) {
+		int[] base = new int[n];
+		for (int i = 0; i < base.length; i++) {
+			base[i] = i+1;
+		}
+		return base;
+	}
+	public static ArrayList<int[]> getWeightVector8(int n){
+		int[] base = getBaseVector8(n);
+		int[] weights = {-1,0,1};
+		return vector(n,weights,base,-3,3);
+	} 
+	public static ArrayList<int[]> getWeightVector14(int n){
+		int[] base = getBaseVector14(n);
+		int[] weights = {-1,0,1};
+		return vector(n,weights,base,-2,3);
+	} 
 	public static void main(String[] args) {
-		preference17(3,4);
+		getWeightVector8(4);
 	}
 
 }
