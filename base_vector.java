@@ -35,9 +35,9 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 		int len;
 		if(x == -1){
 			baseVectorLen = (int) Math.pow(c, n);
-		}if(x == -2){
+		}else if(x == -2){
 			baseVectorLen = 10*n-13;
-		}if(x == -3){
+		}else if(x == -3){
 			baseVectorLen = 2*n+1;
 		}else{
 			baseVectorLen = (int)(Math.pow(2, n+x)-1);
@@ -146,7 +146,7 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 			}
 		}else{
 			weights[c/2] = 0;
-			for (int i = 1; i < c+1; i++) {
+			for (int i = 1; i < c/2+1; i++) {
 				weights[c/2 + i] = i;
 				weights[c/2 - i] = -1*i;
 			}

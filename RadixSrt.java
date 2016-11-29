@@ -1,6 +1,11 @@
 package base3times16;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import notContinue.NCTriBasedSeqGenerator;
+import sequenceBased.NMlogistics;
+import sequenceBased.embed;
+import sequenceBased.twoValueImage;
 public class RadixSrt {
 	public static int[] produceRandomInt() {
 		double x0 = 0.3519407329674913, u = 4;
@@ -54,7 +59,51 @@ public class RadixSrt {
 		System.out.println(srtRadix.size());*/
 		return srtRadix;
 	}
+	public static ArrayList<Integer> getRadixForEMD_M_N(double x0,double u,int Nmax,int IT){
+		//b表示密钥 t表示取m值的序号
+		ArrayList<Integer> carrierNum = NMlogistics.getN(x0, u, Nmax,IT);
+		ArrayList<Integer> maxChange = NMlogistics.getM(x0, u, Nmax,IT);
+		ArrayList<int[]> weightVector = new ArrayList<int[]>();
+		ArrayList<Integer> srtRadix = new ArrayList<Integer>();
+		int[] binary = getBinary();
+		int radix = 0;
+		int x = 0;
+		int p = 0;
+		NCTriBasedSeqGenerator.generate(carrierNum.get(x), maxChange.get(x), weightVector);
+		radix = weightVector.size();
+		p = (int) Math.floor(Math.log(radix)/Math.log(2));
+		System.out.println(Math.log(radix));
+		int p1 = p;
+		int n;
+		int m;
+		for (int start = p-1,end = -1;start<binary.length; start += p,end += p1) {
+			p1 = p;
+			int num = 0;//最终转换为radix进制的数。
+			int t = 1;
+			for (int i = start; i >end; i--) {//这里将2进制转为十进制
+				num = num + binary[i]*t;
+				t = t*2;
+			}
+			if(num == 0){
+				srtRadix.add(0);
+			}
+ 			while(num>0)
+			{
+ 				srtRadix.add(num%radix);
+				num = num/radix;
+			}
+ 			weightVector.clear();
+ 			x++;
+ 			n = carrierNum.get(x);
+ 			m = maxChange.get(x);
+ 			NCTriBasedSeqGenerator.generate(n, m, weightVector);
+			radix = weightVector.size();
+			p = (int) Math.floor(Math.log(radix)/Math.log(2));
+			
+		}
+			return srtRadix;
+	}
 	public static void main(String[] args) throws Exception {
-		getRadix(7);
+		getRadixForEMD_M_N(0.3519407329674913, 4, 6,100);
 	}
 }
