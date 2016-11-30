@@ -5,6 +5,7 @@ import fundamental.ImageOutPut;
 import fundamental.PSNR;
 import notContinue.NCTriBasedSeqGenerator;
 import sequenceBased.NMlogistics;
+import sequenceBased.myIndexOf;
 /*
  * 文献8 EMD，x=-3
  * 文献14，EMD-2 x=-2
@@ -17,6 +18,7 @@ public class embed16 {
 	public static int embedNum = 0;
 	public static int fullEmbNum = 0;
 	public static int secretRadixNum = 0;
+	public static int secretNumEMD_M_N = 0;
 	public static ArrayList<Integer> extractSecret(int[][] barrier,int n,int weightLength,int[] baseVector){
 		ArrayList<Integer> extractRadix = new ArrayList<Integer>();
 		int t = 0;
@@ -243,20 +245,23 @@ return embedNum;
 		ArrayList<Integer> carrierNum = NMlogistics.getN(x0, u, Nmax, IT);
 		ArrayList<Integer> maxChange = NMlogistics.getM(x0, u, Nmax, IT);
 		ArrayList<int[]> weightVector = new ArrayList<int[]>();
-		ArrayList<Integer> secret = RadixSrt.getRadixForEMD_M_N(0.3519407329674913, 4, 6,100);
+		ArrayList<Integer> secret = RadixSrt.getRadixForEMD_M_N(x0, u, Nmax,IT);
 		int[][] srtArr  = new int[GrayArr[0].length][GrayArr.length];
 		int secretSize = secret.size();
+		System.out.println("secret.size():"+secret.size());
 		int mnIndex = 0;
 		int scretIndex = 0;//控制秘密信息数组。
 		int i = 0;
 		int j = 0;
-		System.out.println("size:"+secretSize);
-		for (; i < GrayArr.length; i++) {
 			for (; j < GrayArr[0].length;) {
 				if(scretIndex > secretSize-1){
+					secretNumEMD_M_N = scretIndex;
+					System.out.println("嵌入了"+secretNumEMD_M_N);
 					return srtArr;
 				}
 				if (i == GrayArr.length) {
+					secretNumEMD_M_N = scretIndex;
+					System.out.println("嵌入了"+secretNumEMD_M_N);
 					return srtArr;
 				}
 				NCTriBasedSeqGenerator.generate(carrierNum.get(mnIndex), maxChange.get(mnIndex), weightVector);
@@ -264,8 +269,10 @@ return embedNum;
 				int r = 0;// 标记赋值内部序号
 				do {
 						if (i == GrayArr.length) {
-						return srtArr;
-					}
+							secretNumEMD_M_N = scretIndex;
+							System.out.println("嵌入了"+secretNumEMD_M_N);
+							return srtArr;
+						}
 					int g = GrayArr[i][j];
 					srtArr[i][j] = GrayArr[i][j] + tempWeight[r++];
 					int s = srtArr[i][j];
@@ -284,16 +291,68 @@ return embedNum;
 				scretIndex++;
 				mnIndex++;
 				weightVector.clear();
-				continue;
 			}
-		}
+		
 		return srtArr;
 	}
-	 public static void main(String[] args) throws Exception {
+	public static ArrayList<Integer> extractForEMD_M_N(int[][] carrier,int[][] barrier,double x0, double u, int Nmax, int IT){
+		ArrayList<Integer> carrierNum = NMlogistics.getN(x0, u, Nmax, IT);
+		ArrayList<Integer> maxChange = NMlogistics.getM(x0, u, Nmax, IT);
+		ArrayList<int[]> weightVector = new ArrayList<int[]>();
+		ArrayList<Integer> tempWeightVector = new ArrayList<Integer>();
+		ArrayList<Integer> abstractSec = new ArrayList<Integer>();
+		int i = 0;
+		int j = 0;
+		int nIndex = 0;
+		int p = 0;
+		for (; i < carrier.length; i++) {
+			for (; j < carrier[0].length; j++) {
+				do {
+					if (i == carrier.length) {
+						return abstractSec;
+					}
+					int temp = barrier[i][j] - carrier[i][j];
+					if (temp == 2) {
+						temp = -1;
+					}else if (temp == -2) {
+						temp = 1;
+					}
+					tempWeightVector.add(temp);
+					j++;
+					if (j == carrier[0].length) {
+						i++;
+						j = 0;
+					}
+					p++;
+				} while (p != carrierNum.get(nIndex));
+
+				NCTriBasedSeqGenerator.generate(carrierNum.get(nIndex), maxChange.get(nIndex), weightVector);
+				abstractSec.add(myIndexOf.myIndex(weightVector, tempWeightVector));
+				if(abstractSec.size() == secretNumEMD_M_N){
+					return abstractSec;
+				}
+				nIndex++;
+				p = 0;
+				tempWeightVector.clear();
+				weightVector.clear();
+				j--;
+			}
+		}
+		
+		return abstractSec;
+		
+	}
+	public static void main(String[] args) throws Exception {
 		 String pathName = "EMDimgFrom";
-		 String imgName = "Man";
+		 String imgName = "Lena";
+		 double x0 = 0.3519407329674913;
+		 double u = 4.0;
+		 int Nmax= 3;
+		 int IT = 100;
 		 int[][] carrier = ImageImport.imageimport(imgName,pathName);
-		 embedForEMD_M_N(0.3519407329674913, 4.0, 6,100,carrier);
+		 int[][] barrier = embedForEMD_M_N(x0, u, Nmax, IT,carrier);
+		 ArrayList<Integer> extract = extractForEMD_M_N(carrier,barrier,x0, u, Nmax, IT);
+		 
 	}
 
 }

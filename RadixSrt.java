@@ -72,7 +72,6 @@ public class RadixSrt {
 		NCTriBasedSeqGenerator.generate(carrierNum.get(x), maxChange.get(x), weightVector);
 		radix = weightVector.size();
 		p = (int) Math.floor(Math.log(radix)/Math.log(2));
-		System.out.println(Math.log(radix));
 		int p1 = p;
 		int n;
 		int m;
