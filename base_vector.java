@@ -57,9 +57,9 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 					sum += p[j]*base[j];
 				}
 				if(sum < 0){
-					sum = len + sum;
+					sum = baseVectorLen + sum;
 				}
-				if(sum > 0){
+				if(sum > 0 && sum < baseVectorLen){
 					if(getListSum(baseVector[sum]) == 0){
 					baseVector[sum] = p;
 					}else{

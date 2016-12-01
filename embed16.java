@@ -238,11 +238,11 @@ public class embed16 {
 		String pathName = "EMDimgFrom";
 		int n = 3;
 		int x = 3;
-		int prefrence = 15;
+		int prefrence = 8;
 		int c = 3;
 		String imgRealName = null;
-		ArrayList<int[]> weightVector = base_vector.getWeightVector14(n);
-		int[] baseVector = base_vector.getBaseVector14(n);
+		ArrayList<int[]> weightVector = base_vector.getWeightVector8(n);
+		int[] baseVector = base_vector.getBaseVector8(n);
 		int weightSize = weightVector.size();
 		ArrayList<Integer> secret = RadixSrt.getRadix(weightSize);
 		ArrayList<Integer> extractForPrefrence = null;
@@ -250,8 +250,6 @@ public class embed16 {
 		int[][][] carrier = new int[4][][];
 		int[][][] barrier = new int[4][][];
 		String[] imgName = {"Man","Lena","Women","Lake"};
-		int[][] extractSecretImg;
-		int[][] embeddedSecretImg;
 		secretRadixNum = secret.size();
 		if(prefrence!=15){
 			System.out.println("所有01转换成的对应进制秘密信息数量："+secretRadixNum);
@@ -288,19 +286,12 @@ public class embed16 {
 		
 	}
 	public static void outPutSecret(String flag,String imgName,ArrayList<Integer> secret,int pixelsNum,int prefrence,int n,int weightSize){
-		int len = (int) Math.sqrt(pixelsNum);
-		int addTimes = 255/weightSize; 
-		int circle = 0;
-		int[][] embeddedSecretImg = new int[len][len];
-		for (int i1 = 0; i1 < embeddedSecretImg.length; i1++) {
-			for (int j = 0; j < embeddedSecretImg.length; j++) {
-				embeddedSecretImg[i1][j] = addTimes*secret.get(circle++);
-			}
-		}
+		int[][] ToBinary = Others.changeToBinary(secret, pixelsNum);
+		System.out.println("嵌入率"+Others.getEmbeddedRate());
 		if(flag == "embed"){
-			ImageOutPut.OutPut2(embeddedSecretImg, "embedded in"+prefrence+"n="+n,5);
+			ImageOutPut.printBufferedImage(ToBinary, "b embedded in"+prefrence+" n="+n);
 		}else{
-			ImageOutPut.OutPut2(embeddedSecretImg, "extract in"+prefrence+"n="+n+"of"+imgName,5);
+			ImageOutPut.printBufferedImage(ToBinary, "b extract in"+prefrence+"n="+n+"of"+imgName);
 		}
 	}
 	public static int[][] embedForEMD_M_N(double x0, double u, int Nmax, int IT,int[][] GrayArr) {
