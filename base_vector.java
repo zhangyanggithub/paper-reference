@@ -56,7 +56,21 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 				for (int j = 0; j < p.length; j++) {
 					sum += p[j]*base[j];
 				}
-				if(sum == i){
+				if(sum < 0){
+					sum = len + sum;
+				}
+				if(sum > 0){
+					if(getListSum(baseVector[sum]) == 0){
+					baseVector[sum] = p;
+					}else{
+						if(getListSum(p) < getListSum(baseVector[sum])){
+							baseVector[sum] = p;
+						}
+					}
+				}
+				
+					
+			/*if(sum == i){
 					if(getListSum(baseVector[i]) == 0){
 						baseVector[i] = p;
 					}else{
@@ -65,7 +79,7 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 						}
 					}
 					
-				}
+				}*/
 			}
 		}
 		if(x != -1){
