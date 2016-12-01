@@ -238,8 +238,8 @@ public class embed16 {
 		String pathName = "EMDimgFrom";
 		int n = 3;
 		int x = 3;
-		int prefrence = 8;
-		int c = 3;
+		int prefrence = 17;
+		int c = 5;
 		String imgRealName = null;
 		ArrayList<int[]> weightVector = base_vector.getWeightVector8(n);
 		int[] baseVector = base_vector.getBaseVector8(n);
@@ -286,8 +286,8 @@ public class embed16 {
 		
 	}
 	public static void outPutSecret(String flag,String imgName,ArrayList<Integer> secret,int pixelsNum,int prefrence,int n,int weightSize){
-		int[][] ToBinary = Others.changeToBinary(secret, pixelsNum);
-		System.out.println("嵌入率"+Others.getEmbeddedRate());
+		int[][] ToBinary = Others.changeToBinary(secret, pixelsNum,weightSize);
+		System.out.println("嵌入率为"+Others.getEmbeddedRate()+"%");
 		if(flag == "embed"){
 			ImageOutPut.printBufferedImage(ToBinary, "b embedded in"+prefrence+" n="+n);
 		}else{
@@ -405,7 +405,7 @@ public class embed16 {
 		 int[][] carrier = ImageImport.imageimport(imgName,pathName);
 		 int[][] barrier = embedForEMD_M_N(x0, u, Nmax, IT,carrier);
 		 ArrayList<Integer> extract = extractForEMD_M_N(carrier,barrier,x0, u, Nmax, IT);*/
-		System.out.println(CheckTwoImgSame());
+		
 	}
 
 }

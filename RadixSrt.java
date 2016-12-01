@@ -34,7 +34,8 @@ public class RadixSrt {
 		return binary;
 	}
 	public static ArrayList<Integer> getRadix(int radix) throws Exception{//生成radix进制数 
-		int p = Integer.toBinaryString(radix*radix-1).length()-1;
+//		int p = Integer.toBinaryString(radix*radix-1).length()-1;
+		int p = (int) (Math.log(radix)/Math.log(2));
 		int[] binary = getBinary();
 		ArrayList<Integer> srtRadix = new ArrayList<Integer>();
 		for (int start = p-1,end = -1;start<binary.length; start += p,end += p) {
@@ -44,11 +45,8 @@ public class RadixSrt {
 				num = num + binary[i]*t;
 				t = t*2;
 			}
- 			while(num>0)
-			{
- 				srtRadix.add(num%radix);
-				num = num/radix;
-			}
+			srtRadix.add(num);
+			
 		}
 	/*	Iterator<Integer> iterator = srtRadix.iterator();
 		while (iterator.hasNext()) {

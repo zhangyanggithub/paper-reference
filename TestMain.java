@@ -251,13 +251,13 @@ public class TestMain {
 	}
 	public static void preference() throws Exception{
 		String pathName = "EMDimgFrom";
-		int n = 7;
+		int n = 3;
 		int x = 7;
-		int prefrence = 15;
+		int prefrence = 8;
 		int c = 4;
 		String imgRealName = null;
-		ArrayList<int[]> weightVector = base_vector.getWeightVector14(n);
-		int[] baseVector = base_vector.getBaseVector14(n);
+		ArrayList<int[]> weightVector = base_vector.getWeightVector8(n);
+		int[] baseVector = base_vector.getBaseVector8(n);
 		int weightSize = weightVector.size();
 		ArrayList<Integer> secret = RadixSrt.getRadix(weightSize);
 		ArrayList<Integer> extractForPrefrence = null;
@@ -300,7 +300,7 @@ public class TestMain {
 		
 	}
 	public static void outPutSecret(String flag,String imgName,ArrayList<Integer> secret,int pixelsNum,int prefrence,int n,int weightSize){
-		int[][] embeddedSecretImg = Others.changeToBinary(secret, pixelsNum);
+		int[][] embeddedSecretImg = Others.changeToBinary(secret, pixelsNum,weightSize);
 		if(flag == "embed"){
 			ImageOutPut.OutPut(embeddedSecretImg, "b embedded in"+prefrence+" n="+n,10);
 		}else{
