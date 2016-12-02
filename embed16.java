@@ -25,8 +25,8 @@ public class embed16 {
 		//120, 80, 200, 40, 160, 240
 		//120, 79, 200, 38, 160, 240,
 		//[[120, 78, 198, 42, 162, 240,
-		int[][] image1 = ImageImport.imageimport("embedded in8n=3",pathName);
-		int[][] image2 = ImageImport.imageimport("extract in8n=3ofLena",pathName);
+		int[][] image1 = ImageImport.imageimport("b embedded in15 n=3",pathName);
+		int[][] image2 = ImageImport.imageimport("b extract in15n=3ofLake",pathName);
 		
 		for (int i = 0; i < image2.length; i++) {
 			for (int j = 0; j < image2.length; j++) {
@@ -72,12 +72,10 @@ public class embed16 {
 	}
 	public static int[][] EMD_n(int n,int[][] GrayArr) throws Exception {
 		int[][] srtArr  = new int[GrayArr[0].length][GrayArr.length];
-		int leftGrayArray = GrayArr.length * GrayArr[0].length % n;
 		int[] base = new int[n];
 		int p = (int)Math.pow(3, n);//能存p进制数
 		ArrayList<Integer> secret = RadixSrt.getRadix(p);
 		int secretRadixNum = secret.size();
-		System.out.println("所有01转换成的对应进制秘密信息数量："+secretRadixNum);
 		embedSecretNum(n,GrayArr,secretRadixNum);
 		for (int i = 0; i < base.length; i++) {
 	    	base[i] = (int)Math.pow(3, i);
@@ -90,10 +88,19 @@ public class embed16 {
 			for (int j = 0; j < GrayArr[0].length; j++) {
 				if (t == n)
 				{
-					int w = 0;
 					int a = i;
 					t = 0;
-					int secretDetail  = secret.get(scretIndex);
+					if(scretIndex > secret.size() -1){
+						for (int i1 = 0; i1 < srtArr.length; i1++) {
+							for (int j1 = 0; j1 < srtArr.length; j1++) {
+								if(srtArr[i1][j1] == 0){
+									srtArr[i1][j1] = GrayArr[i1][j1];
+								}
+							}
+						}
+						return srtArr;
+					}
+					int secretDetail  = secret.get(scretIndex++);
 					left = sum % (int)Math.pow(3, n);
 					int s = secretDetail - left;
 					if (s>0)   s = s%(int)Math.pow(3, n);
@@ -117,7 +124,6 @@ public class embed16 {
 							k = GrayArr[0].length-1;
 							a = i-1;
 						}
-						boolean boo = Judgesi(s,h);
 						if (Judgesi(s,h) == true) {
 							if (F4(s,h) == 0)
 								srtArr[a][k] = GrayArr[a][k] + 1;
@@ -138,14 +144,7 @@ public class embed16 {
 				sum += GrayArr[i][j]*base[t];
 				t++;
 			}
-		}
-		if(leftGrayArray != 0){
-			int j = GrayArr[0].length-1;
-			for(int i = 0; i < leftGrayArray;i++){
-				srtArr[GrayArr.length-1][j-i] = GrayArr[GrayArr.length-1][j-i];
-			}
-		}
-		
+		}	
 		return srtArr;
 	}
 	public static int F4(int s,int i)
@@ -174,7 +173,6 @@ public class embed16 {
 		int left =  0;//sum%weightSize
 		secretRadixNum = secret.size();
 		embedSecretNum(n,GrayArr,secretRadixNum);
-		int leftGrayArray = GrayArr.length * GrayArr[0].length % n;
 		for (int i = 0; i < GrayArr.length; i++) {
 			for (int j = 0; j < GrayArr[0].length; j++) {
 				if (t == n) {
@@ -234,27 +232,60 @@ public class embed16 {
 		}
 		return srtArr;
 	}
-	public static void preference() throws Exception{
+	public static void preference(int prefrence,int n,int x,int c) throws Exception{
 		String pathName = "EMDimgFrom";
-		int n = 3;
-		int x = 3;
-		int prefrence = 17;
-		int c = 5;
 		String imgRealName = null;
-		ArrayList<int[]> weightVector = base_vector.getWeightVector8(n);
-		int[] baseVector = base_vector.getBaseVector8(n);
+		int tempWeightSize = 0;
+		int p = (int)Math.pow(3, n);
+		ArrayList<int[]> weightVector = new ArrayList<int[]>();
+		ArrayList<Integer> secret = new ArrayList<Integer>();
+		int[] baseVector = null;
+		switch (prefrence) {
+		case 8:
+			weightVector = base_vector.getWeightVector8(n);
+			baseVector = base_vector.getBaseVector8(n);
+			break;
+		case 14:
+			weightVector = base_vector.getWeightVector14(n);
+			baseVector = base_vector.getBaseVector14(n);
+			break;
+		case 15:
+			baseVector = base_vector.getBaseVector15(n);
+			break;
+		case 16:
+			weightVector = base_vector.getWeightVector16(n);
+			baseVector = base_vector.getBaseVector16(n);
+			break;
+		case 17:
+			weightVector = base_vector.getWeightVector17(n,x);
+			baseVector = base_vector.getBaseVector17(n,x);
+			break;
+		case 18:
+			weightVector = base_vector.getWeightVector18(n,c);
+			baseVector = base_vector.getBaseVector18(n,c);
+			break;
+		default:
+			break;
+		}
 		int weightSize = weightVector.size();
-		ArrayList<Integer> secret = RadixSrt.getRadix(weightSize);
+		if(prefrence != 15){
+			secret = RadixSrt.getRadix(weightSize);
+		}else{
+			secret = RadixSrt.getRadix(p);
+		}
 		ArrayList<Integer> extractForPrefrence = null;
 		int imgType = 0;
 		int[][][] carrier = new int[4][][];
 		int[][][] barrier = new int[4][][];
 		String[] imgName = {"Man","Lena","Women","Lake"};
 		secretRadixNum = secret.size();
-		if(prefrence!=15){
-			System.out.println("所有01转换成的对应进制秘密信息数量："+secretRadixNum);
-			System.out.println("当n="+n+"时，文献"+prefrence+"嵌入"+weightSize+"进制秘密信息情况");
+		if(prefrence != 15){
+			tempWeightSize = weightSize;
+		}else{
+			tempWeightSize = p;
 		}
+		System.out.println("所有01转换成的对应进制秘密信息数量："+secretRadixNum);
+		System.out.println("当n="+n+"时，文献"+prefrence+"嵌入"+tempWeightSize+"进制秘密信息情况");
 		if(prefrence == 17){
 			imgRealName = prefrence+" n="+n+" x="+x;
 		}else if(prefrence == 18){
@@ -267,27 +298,27 @@ public class embed16 {
 			imgType =  ImageImport.getImageType();
 			if(prefrence == 15){
 				barrier[i] = EMD_n(n, carrier[i]);
+				extractForPrefrence = extractSecret(barrier[i],n,p,baseVector);
 			}else{
 				barrier[i] = embed(weightVector,baseVector,n,carrier[i]);
 				extractForPrefrence = extractSecret(barrier[i],n,weightVector.size(),baseVector);
 			}
 			ImageOutPut.OutPut2(barrier[i], imgName[i]+imgRealName,imgType);
-			if(prefrence != 15){
-				outPutSecret("extract",imgName[i],extractForPrefrence,embedNum,prefrence,n,weightSize);
-			}
-			PSNR.psnr(carrier[i], barrier[i], prefrence, n, imgName[i], x, c);
+			outPutSecret("extract",imgName[i],extractForPrefrence,embedNum,prefrence,n,tempWeightSize);
+			PSNR.psnr(carrier[i], barrier[i], prefrence, n, imgName[i],x, c);
 		}
-		int t2= 0;
 		if(prefrence!=15){
 			outPutSecret("embed","",secret,embedNum,prefrence,n,weightSize);
+		}else{
+			outPutSecret("embed","",secret,embedNum,prefrence,n,p);
 		}
+		System.out.println("300*300个01秘密信息嵌入图像的比率为"+Others.getEmbeddedRate()+"%");
 		System.out.println("可嵌入秘密信息最大量length*length/n："+fullEmbNum);
 		System.out.println("实际嵌入数量："+embedNum);	
 		
 	}
 	public static void outPutSecret(String flag,String imgName,ArrayList<Integer> secret,int pixelsNum,int prefrence,int n,int weightSize){
 		int[][] ToBinary = Others.changeToBinary(secret, pixelsNum,weightSize);
-		System.out.println("嵌入率为"+Others.getEmbeddedRate()+"%");
 		if(flag == "embed"){
 			ImageOutPut.printBufferedImage(ToBinary, "b embedded in"+prefrence+" n="+n);
 		}else{
@@ -395,7 +426,11 @@ public class embed16 {
 		
 	}
 	public static void main(String[] args) throws Exception {
-	preference();
+		int prefrence = 18;
+		int n = 3;
+		int x = 3;
+		int c = 3;
+		preference(prefrence,n,x,c);
 		 /*String pathName = "EMDimgFrom";
 		 String imgName = "Lena";
 		 double x0 = 0.3519407329674913;
@@ -405,7 +440,7 @@ public class embed16 {
 		 int[][] carrier = ImageImport.imageimport(imgName,pathName);
 		 int[][] barrier = embedForEMD_M_N(x0, u, Nmax, IT,carrier);
 		 ArrayList<Integer> extract = extractForEMD_M_N(carrier,barrier,x0, u, Nmax, IT);*/
-		
+//		System.out.println(CheckTwoImgSame());
 	}
 
 }

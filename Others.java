@@ -39,7 +39,7 @@ public class Others {
 				everyRadixBinaryNum = 0;
 			}
 		}
-		rate = (10000*bianryNum.size()/(200*200))/100;
+		rate = (10000*bianryNum.size()/(300*300))/100;
 		int len = (int) Math.sqrt(bianryNum.size());
 		int circle = 0;
 		int[][] binaryImg = new int[len][len];

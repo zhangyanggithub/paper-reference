@@ -23,7 +23,7 @@ public class RadixSrt {
 	public static int[] getBinary(){
 		int[] num = produceRandomInt();
 		int index = 0;
-		int[] binary = new int[200*200];
+		int[] binary = new int[300*300];
 		for (int i = 0; i < num.length; i++) {
 			String string = Integer.toBinaryString(num[i]);
 			for (int j = 0; j < string.length(); j++) {
@@ -34,7 +34,6 @@ public class RadixSrt {
 		return binary;
 	}
 	public static ArrayList<Integer> getRadix(int radix) throws Exception{//生成radix进制数 
-//		int p = Integer.toBinaryString(radix*radix-1).length()-1;
 		int p = (int) (Math.log(radix)/Math.log(2));
 		int[] binary = getBinary();
 		ArrayList<Integer> srtRadix = new ArrayList<Integer>();
@@ -48,17 +47,9 @@ public class RadixSrt {
 			srtRadix.add(num);
 			
 		}
-	/*	Iterator<Integer> iterator = srtRadix.iterator();
-		while (iterator.hasNext()) {
-			int type = iterator.next();
-			System.out.print(type);	
-		}
-		System.out.println();
-		System.out.println(srtRadix.size());*/
 		return srtRadix;
 	}
 	public static ArrayList<Integer> getRadixForEMD_M_N(double x0,double u,int Nmax,int IT){
-		//b表示密钥 t表示取m值的序号
 		ArrayList<Integer> carrierNum = NMlogistics.getN(x0, u, Nmax,IT);
 		ArrayList<Integer> maxChange = NMlogistics.getM(x0, u, Nmax,IT);
 		ArrayList<int[]> weightVector = new ArrayList<int[]>();

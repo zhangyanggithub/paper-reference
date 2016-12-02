@@ -200,6 +200,13 @@ private static ArrayList<int[]> baseArrayList = new ArrayList<int[]>();
 		int[] weights = {-1,0,1};
 		return vector(n,weights,base,-2,3);
 	} 
+	public static int[] getBaseVector15(int n) {
+		int[] base = new int[n];
+		for (int i = 0; i < base.length; i++) {
+	    	base[i] = (int)Math.pow(3, i);
+		}
+		return base;
+	}
 	public static void main(String[] args) {
 		getWeightVector8(4);
 	}
