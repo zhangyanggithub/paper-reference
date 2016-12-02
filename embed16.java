@@ -236,6 +236,11 @@ public class embed16 {
 		String pathName = "EMDimgFrom";
 		String imgRealName = null;
 		int tempWeightSize = 0;
+		ArrayList<Integer> extractForPrefrence = null;
+		int imgType = 0;
+		int[][][] carrier = new int[4][][];
+		int[][][] barrier = new int[4][][];
+		String[] imgName = {"Man","Lena","Women","Lake"};
 		int p = (int)Math.pow(3, n);
 		ArrayList<int[]> weightVector = new ArrayList<int[]>();
 		ArrayList<Integer> secret = new ArrayList<Integer>();
@@ -273,11 +278,6 @@ public class embed16 {
 		}else{
 			secret = RadixSrt.getRadix(p);
 		}
-		ArrayList<Integer> extractForPrefrence = null;
-		int imgType = 0;
-		int[][][] carrier = new int[4][][];
-		int[][][] barrier = new int[4][][];
-		String[] imgName = {"Man","Lena","Women","Lake"};
 		secretRadixNum = secret.size();
 		if(prefrence != 15){
 			tempWeightSize = weightSize;
@@ -426,12 +426,12 @@ public class embed16 {
 		
 	}
 	public static void main(String[] args) throws Exception {
-		int prefrence = 18;
+		/*int prefrence = 18;
 		int n = 3;
 		int x = 3;
 		int c = 3;
-		preference(prefrence,n,x,c);
-		 /*String pathName = "EMDimgFrom";
+		preference(prefrence,n,x,c);*/
+		 String pathName = "EMDimgFrom";
 		 String imgName = "Lena";
 		 double x0 = 0.3519407329674913;
 		 double u = 4.0;
@@ -439,7 +439,7 @@ public class embed16 {
 		 int IT = 100;
 		 int[][] carrier = ImageImport.imageimport(imgName,pathName);
 		 int[][] barrier = embedForEMD_M_N(x0, u, Nmax, IT,carrier);
-		 ArrayList<Integer> extract = extractForEMD_M_N(carrier,barrier,x0, u, Nmax, IT);*/
+		 ArrayList<Integer> extract = extractForEMD_M_N(carrier,barrier,x0, u, Nmax, IT);
 //		System.out.println(CheckTwoImgSame());
 	}
 
