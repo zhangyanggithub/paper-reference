@@ -64,6 +64,7 @@ public class RadixSrt {
 		int p1 = p;
 		int n;
 		int m;
+		int w  = 0;
 		for (int start = p-1,end = -1;start<binary.length; start += p,end += p1) {
 			p1 = p;
 			int num = 0;//最终转换为radix进制的数。
@@ -87,7 +88,6 @@ public class RadixSrt {
  			NCTriBasedSeqGenerator.generate(n, m, weightVector);
 			radix = weightVector.size();
 			p = (int) Math.floor(Math.log(radix)/Math.log(2));
-			
 		}
 			return srtRadix;
 	}

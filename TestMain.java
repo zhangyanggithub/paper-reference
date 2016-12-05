@@ -19,40 +19,23 @@ public class TestMain {
 	public static int fullEmbNum = 0;
 	public static int secretRadixNum = 0;
 	public static int secretNumEMD_M_N = 0;
-	public static boolean CheckTwoImgSame(){
-		String pathName = "imgEMD_16";
-		String[] imgName = {"Man","Lena","Women","Lake"};
-		//120, 80, 200, 40, 160, 240
-		//120, 79, 200, 38, 160, 240,
-		//[[120, 78, 198, 42, 162, 240,
-		int[][] image1 = ImageImport.imageimport("b embedded in15 n=3",pathName);
-		int[][] image2 = ImageImport.imageimport("b extract in15n=3ofLake",pathName);
-		
-		for (int i = 0; i < image2.length; i++) {
-			for (int j = 0; j < image2.length; j++) {
-				if(image1[i][j] != image2[i][j]){
-					System.out.println("两img不一样");
-					return false;
-				}
-			}
-		}
-		return true;
-		
-	}
 	public static ArrayList<Integer> extractSecret(int[][] barrier,int n,int weightLength,int[] baseVector){
 		ArrayList<Integer> extractRadix = new ArrayList<Integer>();
 		int t = 0;
 		int sum = 0;
 		int embedCount = 0;
+		int p = 0;
 		for (int i = 0; i < barrier.length; i++) {
 			for (int j = 0; j < barrier[0].length; j++) {
-				if(t == n){
+				p++;
+//				if(t == n){
+				if(p % n == 0){
 					t = 0;
 					extractRadix.add(sum%weightLength);
 					embedCount++;
 					sum = 0;
 				}
-				if(embedCount > embedNum-1){
+				if(embedCount == embedNum+1){
 					return extractRadix;
 				}
 				sum += barrier[i][j]*baseVector[t];
@@ -64,7 +47,7 @@ public class TestMain {
 	public static int embedSecretNum(int n,int[][] GrayArr,int secretRadixNum){
 		fullEmbNum = (GrayArr[0].length * GrayArr.length)/n;
 		if(fullEmbNum >= secretRadixNum){
-			embedNum = secretRadixNum;
+			embedNum = secretRadixNum - 1;
 		}else{
 			embedNum = fullEmbNum;
 		} 
@@ -293,7 +276,7 @@ public class TestMain {
 		}else{
 			imgRealName = prefrence+" n="+n;
 		}
-		for (int i = 0; i < carrier.length; i++) {
+		for (int i = 0; i < imgName.length; i++) {
 			carrier[i] = ImageImport.imageimport(imgName[i],pathName);
 			imgType =  ImageImport.getImageType();
 			if(prefrence == 15){
@@ -304,26 +287,59 @@ public class TestMain {
 				extractForPrefrence = extractSecret(barrier[i],n,weightVector.size(),baseVector);
 			}
 			ImageOutPut.OutPut2(barrier[i], imgName[i]+imgRealName,imgType);
-			outPutSecret("extract",imgName[i],extractForPrefrence,embedNum,prefrence,n,tempWeightSize);
+			outPutSecret("extract",imgName[i],extractForPrefrence,embedNum,prefrence,n,tempWeightSize,0);
 			PSNR.psnr(carrier[i], barrier[i], prefrence, n, imgName[i],x, c);
 		}
 		if(prefrence!=15){
-			outPutSecret("embed","",secret,embedNum,prefrence,n,weightSize);
+			outPutSecret("embed","",secret,embedNum,prefrence,n,weightSize,0);
 		}else{
-			outPutSecret("embed","",secret,embedNum,prefrence,n,p);
+			outPutSecret("embed","",secret,embedNum,prefrence,n,p,0);
 		}
 		System.out.println("300*300个01秘密信息嵌入图像的比率为"+Others.getEmbeddedRate()+"%");
 		System.out.println("可嵌入秘密信息最大量length*length/n："+fullEmbNum);
 		System.out.println("实际嵌入数量："+embedNum);	
 		
 	}
-	public static void outPutSecret(String flag,String imgName,ArrayList<Integer> secret,int pixelsNum,int prefrence,int n,int weightSize){
-		int[][] ToBinary = Others.changeToBinary(secret, pixelsNum,weightSize);
+	public static void outPutSecret(String flag,String imgName,ArrayList<Integer> extractForEMD_N_M,int pixelsNum,int prefrence,int n,int weightSize,int Nmax){
+		int[][] ToBinary = Others.changeToBinary(extractForEMD_N_M, pixelsNum,weightSize);
 		if(flag == "embed"){
 			ImageOutPut.printBufferedImage(ToBinary, "b embedded in"+prefrence+" n="+n);
-		}else{
+		}else if(flag == "extract"){
 			ImageOutPut.printBufferedImage(ToBinary, "b extract in"+prefrence+"n="+n+"of"+imgName);
 		}
+	}
+	public static void outPutSecretForEMD_N_M(String flag,String imgName,ArrayList<Integer> secret,int pixelsNum,double x0, double u, int Nmax, int IT){
+		int[][] ToBinary = Others.changeToBinaryForEMD_N_M (x0, u, Nmax, IT,pixelsNum);
+		if(flag == "embed EMD_N_M"){
+			ImageOutPut.printBufferedImage(ToBinary, "b embed in EMD_N_M Nmax="+Nmax);
+		}
+		else if(flag == "extract EMD_N_M"){
+			ImageOutPut.printBufferedImage(ToBinary, "b extract in EMD_N_M Nmax="+Nmax+" "+imgName);
+		}
+	}
+	public static void testEMD_N_M(double x0, double u, int Nmax, int IT){
+		int[][][] carrier = new int[4][][];
+		int[][][] barrier = new int[4][][];
+		String[] imgName = {"Man","Lena","Women","Lake"};
+		String pathName = "EMDimgFrom";
+		ArrayList<Integer> extractForEMD_N_M = new ArrayList<Integer>();
+		int imgType = 0;
+		ArrayList<Integer> secret = RadixSrt.getRadixForEMD_M_N(x0, u, Nmax,IT);
+		System.out.println("所有01转换成的对应进制秘密信息数量："+secret.size());
+		System.out.println("EMD(n,m)嵌入秘密信息情况:");
+		for (int i = 0; i < carrier.length; i++) {
+			carrier[i] = ImageImport.imageimport(imgName[i],pathName);
+			imgType =  ImageImport.getImageType();
+			barrier[i] = embedForEMD_M_N(x0, u,Nmax,IT,carrier[i]);
+			PSNR.psnr(carrier[i],barrier[i],0,Nmax,imgName[i],100,100);
+			extractForEMD_N_M = extractForEMD_M_N(carrier[i],barrier[i],x0, u,Nmax,IT);
+			ImageOutPut.OutPut2(barrier[i], imgName[i]+"Nmax="+Nmax,imgType);
+			outPutSecretForEMD_N_M("extract EMD_N_M",imgName[i],extractForEMD_N_M,secretNumEMD_M_N,x0, u, Nmax, IT);
+		}	
+		outPutSecretForEMD_N_M("embed EMD_N_M","",secret,secretNumEMD_M_N,x0, u, Nmax, IT);
+		System.out.println("实际嵌入了"+secretNumEMD_M_N+"个对应进制的秘密信息数");
+		Others.getEmbeddedRate();
+		System.out.println("嵌入率为："+Others.getEmbeddedRate()+"%");
 	}
 	public static int[][] embedForEMD_M_N(double x0, double u, int Nmax, int IT,int[][] GrayArr) {
 		ArrayList<Integer> carrierNum = NMlogistics.getN(x0, u, Nmax, IT);
@@ -332,7 +348,7 @@ public class TestMain {
 		ArrayList<Integer> secret = RadixSrt.getRadixForEMD_M_N(x0, u, Nmax,IT);
 		int[][] srtArr  = new int[GrayArr[0].length][GrayArr.length];
 		int secretSize = secret.size();
-		System.out.println("secret.size():"+secret.size());
+		
 		int mnIndex = 0;
 		int scretIndex = 0;//控制秘密信息数组。
 		int i = 0;
@@ -340,21 +356,19 @@ public class TestMain {
 			for (; j < GrayArr[0].length;) {
 				if(scretIndex > secretSize-1){
 					secretNumEMD_M_N = scretIndex;
-					System.out.println("嵌入了"+secretNumEMD_M_N);
 					return srtArr;
 				}
 				if (i == GrayArr.length) {
 					secretNumEMD_M_N = scretIndex;
-					System.out.println("嵌入了"+secretNumEMD_M_N);
 					return srtArr;
 				}
 				NCTriBasedSeqGenerator.generate(carrierNum.get(mnIndex), maxChange.get(mnIndex), weightVector);
-				int[] tempWeight = weightVector.get(secret.get(scretIndex));
+				int tempSrt = secret.get(scretIndex);
+				int[] tempWeight = weightVector.get(tempSrt);
 				int r = 0;// 标记赋值内部序号
 				do {
 						if (i == GrayArr.length) {
 							secretNumEMD_M_N = scretIndex;
-							System.out.println("嵌入了"+secretNumEMD_M_N);
 							return srtArr;
 						}
 					int g = GrayArr[i][j];
@@ -426,21 +440,16 @@ public class TestMain {
 		
 	}
 	public static void main(String[] args) throws Exception {
-		/*int prefrence = 18;
-		int n = 3;
+		int prefrence = 18;
+		int n = 4;
 		int x = 3;
-		int c = 3;
-		preference(prefrence,n,x,c);*/
-		 String pathName = "EMDimgFrom";
-		 String imgName = "Lena";
-		 double x0 = 0.3519407329674913;
-		 double u = 4.0;
-		 int Nmax= 3;
-		 int IT = 100;
-		 int[][] carrier = ImageImport.imageimport(imgName,pathName);
-		 int[][] barrier = embedForEMD_M_N(x0, u, Nmax, IT,carrier);
-		 ArrayList<Integer> extract = extractForEMD_M_N(carrier,barrier,x0, u, Nmax, IT);
-//		System.out.println(CheckTwoImgSame());
+		int c = 2;
+		preference(prefrence,n,x,c);
+		/*double x0 = 0.3519407329674913;
+		double u = 4.0;
+		int Nmax= 3;
+		int IT = 100;
+		testEMD_N_M(x0, u, Nmax, IT);*/
 	}
 
 }
