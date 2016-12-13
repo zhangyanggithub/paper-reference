@@ -29,7 +29,7 @@ public class TestMain {
 			for (int j = 0; j < barrier[0].length; j++) {
 				p++;
 //				if(t == n){
-				if(p % n == 0){
+				if(p!=1&&(p-1) % n == 0){
 					t = 0;
 					extractRadix.add(sum%weightLength);
 					embedCount++;
@@ -267,7 +267,7 @@ public class TestMain {
 		}else{
 			tempWeightSize = p;
 		}
-		System.out.println("所有01转换成的对应进制秘密信息数量："+secretRadixNum);
+		System.out.println("所有01转换成的"+tempWeightSize+"进制秘密信息数量："+secretRadixNum);
 		System.out.println("当n="+n+"时，文献"+prefrence+"嵌入"+tempWeightSize+"进制秘密信息情况");
 		if(prefrence == 17){
 			imgRealName = prefrence+" n="+n+" x="+x;
@@ -309,12 +309,21 @@ public class TestMain {
 		}
 	}
 	public static void outPutSecretForEMD_N_M(String flag,String imgName,ArrayList<Integer> secret,int pixelsNum,double x0, double u, int Nmax, int IT){
-		int[][] ToBinary = Others.changeToBinaryForEMD_N_M (x0, u, Nmax, IT,pixelsNum);
+		int[][] ToBinary = Others.changeToBinaryForEMD_N_M(x0, u, Nmax, IT,pixelsNum);
 		if(flag == "embed EMD_N_M"){
 			ImageOutPut.printBufferedImage(ToBinary, "b embed in EMD_N_M Nmax="+Nmax);
 		}
 		else if(flag == "extract EMD_N_M"){
 			ImageOutPut.printBufferedImage(ToBinary, "b extract in EMD_N_M Nmax="+Nmax+" "+imgName);
+		}
+	}
+	public static void outPutSecretForEMD_N_M_model(String flag,String imgName,ArrayList<Integer> secret,int n,int m,int pixelsNum){
+		int[][] ToBinary = Others.changeToBinaryForEMD_N_M_model(n,m,pixelsNum);
+		if(flag == "embed EMD_N_M_model"){
+			ImageOutPut.printBufferedImage(ToBinary, "b embed model n="+n+" m="+m);
+		}
+		else if(flag == "extract EMD_N_M_model"){
+			ImageOutPut.printBufferedImage(ToBinary, "b extract model n="+n+" m="+m+imgName);
 		}
 	}
 	public static void testEMD_N_M(double x0, double u, int Nmax, int IT){
@@ -340,6 +349,80 @@ public class TestMain {
 		System.out.println("实际嵌入了"+secretNumEMD_M_N+"个对应进制的秘密信息数");
 		Others.getEmbeddedRate();
 		System.out.println("嵌入率为："+Others.getEmbeddedRate()+"%");
+	}
+	public static void testEMD_N_M_model(int n,int m) throws Exception{
+		int[][][] carrier = new int[4][][];
+		int[][][] barrier = new int[4][][];
+		String[] imgName = {"Man","Lena","Women","Lake"};
+		String pathName = "EMDimgFrom";
+		ArrayList<Integer> extractForEMD_N_M = new ArrayList<Integer>();
+		int imgType = 0;
+		ArrayList<int[]> weightVector = new ArrayList<int[]>();
+		NCTriBasedSeqGenerator.generate(n, m, weightVector);
+		int radix = weightVector.size();
+		ArrayList<Integer> secret = RadixSrt.getRadix(radix);
+		System.out.println("EMD_N_M_model所有01转换成的"+radix+"进制秘密信息数量："+secret.size());
+		System.out.println("EMD(n,m)_model嵌入秘密信息情况:");
+		for (int i = 0; i < carrier.length; i++) {
+			carrier[i] = ImageImport.imageimport(imgName[i],pathName);
+			imgType =  ImageImport.getImageType();
+			barrier[i] = embedForEMD_M_N_Model(n,m,carrier[i]);
+			PSNR.psnr(carrier[i],barrier[i],0,n,imgName[i],100,100);
+			extractForEMD_N_M = extractForEMD_M_N_model(carrier[i],barrier[i],n,m);
+			ImageOutPut.OutPut2(barrier[i], imgName[i]+"n="+n+" m="+m,imgType);
+			outPutSecretForEMD_N_M_model("extract EMD_N_M_model",imgName[i],extractForEMD_N_M,n,m,secretNumEMD_M_N);
+		}	
+		outPutSecretForEMD_N_M_model("embed EMD_N_M_model","",extractForEMD_N_M,n,m,secretNumEMD_M_N);
+		System.out.println("可嵌入对应进制秘密信息数："+carrier[0].length*carrier[0][0].length/n);
+		System.out.println("实际嵌入了"+secretNumEMD_M_N+"个对应进制的秘密信息数");
+		Others.getEmbeddedRate();
+		System.out.println("嵌入率为："+Others.getEmbeddedRate()+"%");
+	}
+	public static int[][] embedForEMD_M_N_Model(int n,int m,int[][] GrayArr) throws Exception{
+		ArrayList<int[]> weightVector = new ArrayList<int[]>();
+		NCTriBasedSeqGenerator.generate(n, m, weightVector);
+		int radix = weightVector.size();
+		ArrayList<Integer> secret = RadixSrt.getRadix(radix);
+		int[][] srtArr  = new int[GrayArr[0].length][GrayArr.length];
+		int secretSize = secret.size();
+		int scretIndex = 0;//控制秘密信息数组。
+		int i = 0;
+		int j = 0;
+			for (; j < GrayArr[0].length;) {
+				if(scretIndex > secretSize-1){
+					secretNumEMD_M_N = scretIndex;
+					return srtArr;
+				}
+				if (i == GrayArr.length) {
+					secretNumEMD_M_N = scretIndex;
+					return srtArr;
+				}
+				int tempSrt = secret.get(scretIndex);
+				int[] tempWeight = weightVector.get(tempSrt);
+				int r = 0;// 标记赋值内部序号
+				do {
+						if (i == GrayArr.length) {
+							secretNumEMD_M_N = scretIndex;
+							return srtArr;
+						}
+					int g = GrayArr[i][j];
+					srtArr[i][j] = GrayArr[i][j] + tempWeight[r++];
+					int s = srtArr[i][j];
+					if (srtArr[i][j] == -1) {
+						srtArr[i][j] = 2;
+					}
+					if (srtArr[i][j] == 256) {
+						srtArr[i][j] = 253;
+					}
+					j++;
+					if (j == GrayArr[0].length) {
+						i++;
+						j = 0;
+					}
+				} while (r != n);
+				scretIndex++;
+			}
+		return GrayArr;
 	}
 	public static int[][] embedForEMD_M_N(double x0, double u, int Nmax, int IT,int[][] GrayArr) {
 		ArrayList<Integer> carrierNum = NMlogistics.getN(x0, u, Nmax, IT);
@@ -393,6 +476,47 @@ public class TestMain {
 		
 		return srtArr;
 	}
+	public static ArrayList<Integer> extractForEMD_M_N_model(int[][] carrier,int[][] barrier,int n,int m){
+		ArrayList<int[]> weightVector = new ArrayList<int[]>();
+		NCTriBasedSeqGenerator.generate(n, m, weightVector);
+		ArrayList<Integer> abstractSec = new ArrayList<Integer>();
+		ArrayList<Integer> tempWeightVector = new ArrayList<Integer>();
+		int i = 0;
+		int j = 0;
+		int nIndex = 0;
+		int p = 0;
+		for (; i < carrier.length; i++) {
+			for (; j < carrier[0].length; j++) {
+				do {
+					if (i == carrier.length) {
+						return abstractSec;
+					}
+					int temp = barrier[i][j] - carrier[i][j];
+					if (temp == 2) {
+						temp = -1;
+					}else if (temp == -2) {
+						temp = 1;
+					}
+					tempWeightVector.add(temp);
+					j++;
+					if (j == carrier[0].length) {
+						i++;
+						j = 0;
+					}
+					p++;
+				} while (p != n);
+				abstractSec.add(myIndexOf.myIndex(weightVector, tempWeightVector));
+				if(abstractSec.size() == secretNumEMD_M_N){
+					return abstractSec;
+				}
+				p = 0;
+				tempWeightVector.clear();
+				j--;
+			}
+		}
+		return abstractSec;
+		
+	}
 	public static ArrayList<Integer> extractForEMD_M_N(int[][] carrier,int[][] barrier,double x0, double u, int Nmax, int IT){
 		ArrayList<Integer> carrierNum = NMlogistics.getN(x0, u, Nmax, IT);
 		ArrayList<Integer> maxChange = NMlogistics.getM(x0, u, Nmax, IT);
@@ -439,9 +563,10 @@ public class TestMain {
 		return abstractSec;
 		
 	}
+
 	public static void main(String[] args) throws Exception {
-		int prefrence = 18;
-		int n = 4;
+		int prefrence = 15;
+		int n = 3;
 		int x = 3;
 		int c = 2;
 		preference(prefrence,n,x,c);
@@ -450,6 +575,8 @@ public class TestMain {
 		int Nmax= 3;
 		int IT = 100;
 		testEMD_N_M(x0, u, Nmax, IT);*/
+		/*int n=3,m=3;
+		testEMD_N_M_model(n, m);*/
 	}
 
 }

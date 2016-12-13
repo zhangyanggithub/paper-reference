@@ -49,6 +49,35 @@ public class RadixSrt {
 		}
 		return srtRadix;
 	}
+	public static ArrayList<Integer> getRadixForEMD_M_N_model(int n,int m){
+		ArrayList<int[]> weightVector = new ArrayList<int[]>();
+		ArrayList<Integer> srtRadix = new ArrayList<Integer>();
+		int[] binary = getBinary();
+		int radix = 0;
+		int x = 0;
+		int p = 0;
+		NCTriBasedSeqGenerator.generate(n,m, weightVector);
+		radix = weightVector.size();
+		p = (int) Math.floor(Math.log(radix)/Math.log(2));
+		for (int start = p-1,end = -1;start<binary.length; start += p,end += p) {
+			int num = 0;//最终转换为radix进制的数。
+			int t = 1;
+			for (int i = start; i >end; i--) {//这里将2进制转为十进制
+				num = num + binary[i]*t;
+				t = t*2;
+			}
+			if(num == 0){
+				srtRadix.add(0);
+			}
+ 			while(num>0)
+			{
+ 				srtRadix.add(num%radix);
+				num = num/radix;
+			}
+ 			x++;
+		}
+			return srtRadix;
+	}
 	public static ArrayList<Integer> getRadixForEMD_M_N(double x0,double u,int Nmax,int IT){
 		ArrayList<Integer> carrierNum = NMlogistics.getN(x0, u, Nmax,IT);
 		ArrayList<Integer> maxChange = NMlogistics.getM(x0, u, Nmax,IT);

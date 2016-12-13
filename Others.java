@@ -52,6 +52,49 @@ public class Others {
 		}
 		return binaryImg;
 	}
+	public static int[][] changeToBinaryForEMD_N_M_model(int n,int m,int pixelsNum) {
+		ArrayList<int[]> weightVector = new ArrayList<int[]>();
+		NCTriBasedSeqGenerator.generate(n, m, weightVector);
+		ArrayList<Integer> secret = RadixSrt.getRadixForEMD_M_N_model(n,m);
+		ArrayList<Integer> srtBinary = new ArrayList<Integer>();
+		int radix = weightVector.size();;
+		int p = (int) Math.floor(Math.log(radix)/Math.log(2));
+		int everyRadixBinaryNum = 0;
+		for (int i = 0; i < pixelsNum; i++) {
+			if(secret.get(i) == 0){
+				for (int j = 0; j < p; j++) {
+					srtBinary.add(0);
+				}
+				continue;
+ 			}else{
+ 				int num = secret.get(i);
+ 				while(num>0)
+ 				{
+ 					srtBinary.add(num%2);
+ 					everyRadixBinaryNum++;
+ 					num = num/2;
+ 				}
+ 				if(everyRadixBinaryNum != p){
+ 					for (int j = 0; j < p-everyRadixBinaryNum; j++) {
+ 						srtBinary.add(0);
+ 					}
+ 					everyRadixBinaryNum = 0;
+ 				}else{
+ 					everyRadixBinaryNum = 0;
+ 				}
+ 			}
+		}
+		rate = (10000*srtBinary.size()/(300*300))/100;
+		int len = (int) Math.sqrt(srtBinary.size());
+		int circle = 0;
+		int[][] binaryImg = new int[len][len];
+		for (int i1 = 0; i1 < len; i1++) {
+			for (int j = 0; j < len; j++) {
+				binaryImg[i1][j] = srtBinary.get(circle++);
+			}
+		}
+		return binaryImg;
+	}
 	public static int[][] changeToBinaryForEMD_N_M(double x0, double u, int Nmax, int IT, int pixelsNum) {
 		ArrayList<Integer> carrierNum = NMlogistics.getN(x0, u, Nmax, IT);
 		ArrayList<Integer> maxChange = NMlogistics.getM(x0, u, Nmax, IT);
@@ -66,7 +109,7 @@ public class Others {
 			radix = weightVector.size();
 			p = (int) Math.floor(Math.log(radix)/Math.log(2));
 			if(secret.get(i) == 0){
-				while (p-- > 0) {
+				for (int j = 0; j < p; j++) {
 					srtBinary.add(0);
 				}
  			}else{
